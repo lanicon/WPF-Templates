@@ -3,11 +3,93 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
         xmlns:local="clr-namespace:MahApps"
-        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+        xmlns:ui="clr-namespace:MahApps.UI"
+
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" BorderThickness="0" GlowBrush="Black">
+
     <Grid>
-        
+
+        <Grid.Resources>
+
+            <ui:SelectedItemToContentConverter x:Key="SelectedItemToContentConverter" />
+
+            <DataTemplate x:Key="MenuItemTemplate" DataType="{x:Type mah:HamburgerMenuIconItem}">
+                <Grid x:Name="RootGrid"
+                      Height="48"
+                      Background="Transparent">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Grid.Column="0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="{Binding Icon}"
+                                    Focusable="False" />
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                               FontSize="16"
+                               Text="{Binding Label}" />
+                </Grid>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type mah:HamburgerMenu}}, Path=IsPaneOpen}" Value="False">
+                        <Setter TargetName="RootGrid" Property="ToolTip" Value="{Binding ToolTip, Mode=OneWay}" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
+        </Grid.Resources>
+
+        <mah:HamburgerMenu x:Name="HamburgerMenuControl"
+                                DisplayMode="CompactInline"
+                                IsPaneOpen="False"
+                                ItemsSource="{Binding MenuItems}"
+                                OptionsItemsSource="{Binding MenuOptionItems}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                                OptionsItemTemplate="{StaticResource MenuItemTemplate}">
+
+            <!--  Content  -->
+            <mah:HamburgerMenu.Content>
+                <MultiBinding Converter="{StaticResource SelectedItemToContentConverter}">
+                    <Binding Mode="OneWay"
+                             Path="SelectedItem"
+                             RelativeSource="{RelativeSource Self}" />
+                    <Binding Mode="OneWay"
+                             Path="SelectedOptionsItem"
+                             RelativeSource="{RelativeSource Self}" />
+                </MultiBinding>
+            </mah:HamburgerMenu.Content>
+
+            <!--  Content template  -->
+            <mah:HamburgerMenu.ContentTemplate>
+                <DataTemplate DataType="{x:Type mah:HamburgerMenuItem}">
+                    <Grid x:Name="TheContentGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="48" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="White">
+                            <TextBlock x:Name="Header"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="24"
+                                       Foreground="Black"
+                                       Text="{Binding Label}" />
+                        </Border>
+                        <ContentControl x:Name="TheContent"
+                                        Grid.Row="1"
+                                        Content="{Binding Tag}"
+                                        Focusable="False" />
+                    </Grid>
+                </DataTemplate>
+            </mah:HamburgerMenu.ContentTemplate>
+
+        </mah:HamburgerMenu>
+
     </Grid>
+
 </mah:MetroWindow>
